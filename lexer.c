@@ -1,55 +1,40 @@
-#include "lexer.h"
-#include "buffer.h"
-#include <stdlib.h>
 #include <ctype.h>
-#include <string.h>
-
-
-// Function to get the next character
-static char buffer_next_char(buffer_t *buffer) {
-
-}
+#include <stdlib.h>
+#include "lexer.h"
 
 char *lexer_getalphanum(buffer_t *buffer) {
-    char *result = malloc(LEXEM_SIZE+1); // +1 pour le caractère null
+    char *result = malloc(LEXEM_SIZE + 1); // +1 for null character
     if (!result) {
-        fprintf(stderr, "Erreur de compilation : Échec d'allocation mémoire\n");
-        exit(EXIT_FAILURE);  // Quitter le programme en cas d'erreur
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE); // Exiting here might be harsh; consider another error handling strategy.
     }
-    int i = 0; // Initialiser l'index
+    int i = 0;
 
-    // Skip whitespace
     buf_skipblank(buffer);
 
-    char c = buf_getchar(buffer); // Obtenir le premier caractère
-    while (isalnum(c) && i < LEXEM_SIZE) { // Vérifier si c'est alphanumérique et dans la limite
+    bool lockAcquired = false;
+    if (!buffer->islocked) {
+        buf_lock(buffer); // Lock the buffer if not already locked
+        lockAcquired = true;
+    }
+
+    char c = buf_getchar(buffer);
+    while (isalnum(c) && i < LEXEM_SIZE) {
         result[i++] = c;
-        c = buf_getchar(buffer); // Obtenir le caractère suivant
+        c = buf_getchar(buffer);
     }
-    buf_rollback(buffer, 1); // Revenir d'un caractère si non alphanumérique
+    result[i] = '\0'; // Ensure string is null-terminated
 
-    result[i] = '\0'; // Terminer la chaîne
-    return result; // Retourner le résultat
+    if (c != '\0' && lockAcquired) {
+        buf_rollback_and_unlock(buffer, 1); // Rollback and unlock if we locked it here
+    } else if (lockAcquired) {
+        buf_unlock(buffer); // Ensure to unlock if we locked it and didn't rollback
+    }
 
-}
+    if (i == 0) { // No alphanum sequence found, free memory and return NULL
+        free(result);
+        return NULL;
+    }
 
-char *lexer_getalphanum_rollback(buffer_t *buffer) {
-
-
-    // Skip whitespace
-    buf_skipblank(buffer);
-
-
-}
-
-char *lexer_getop(buffer_t *buffer) {
-
-
-    // Rewind if no valid operator characters found
-
-}
-
-long lexer_getnumber(buffer_t *buffer) {
-
-    return 0;
+    return result; // Return the found sequence
 }

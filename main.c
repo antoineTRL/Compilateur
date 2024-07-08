@@ -5,18 +5,18 @@
 #include "lexer.h"
 
 int main() {
-    // Initialiser le buffer avec une chaîne de caractères
     buffer_t buffer;
-    char inputStr[] = "Il manque le dernier mot";
+    char inputStr[] = "Ceci est un test 12345 avec des mots et des chiffres 67890";
     buf_init_with_string(&buffer, inputStr, strlen(inputStr));
 
-    // Lire et afficher une séquence alphanumérique
-    char *alphanum = lexer_getalphanum(&buffer);
-    while (alphanum) {
-        printf("Sequence alphanumerique trouvee : %s\n", alphanum);
-        free(alphanum); // Libérer la mémoire allouée par lexer_getalphanum
+    char *alphanum;
+    do {
         alphanum = lexer_getalphanum(&buffer);
-    }
+        if (alphanum) {
+            printf("Séquence alphanumérique trouvée : %s\n", alphanum);
+            free(alphanum);
+        }
+    } while (alphanum != NULL);
 
     return EXIT_SUCCESS;
 }
