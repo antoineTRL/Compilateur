@@ -90,7 +90,10 @@ void buf_move_it_bw (buffer_t *buffer, size_t cnt) {
 
 char buf_getchar (buffer_t *buffer)
 {
-  size_t end;
+// Debugging: Print entry into function
+    //printf("Debug: buf_getchar called. it=%zu, avail=%zu, eof=%d\n", buffer->it, buffer->avail, buffer->eof);
+
+    size_t end;
   if (buffer->avail == 0) {
     if (buffer->islocked) {
       // on doit charger le max de caractères
@@ -130,6 +133,9 @@ fail:
   buffer->end = 0;
   buffer->it = 0;
   return '\0';
+
+    // Debugging: Print entry into function
+    printf("Debug: lexer_getnumber called.\n");
 }
 
 char buf_getchar_after_blank (buffer_t *buffer) {

@@ -1,5 +1,7 @@
 #include <ctype.h>
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 #include "lexer.h"
 
 char *lexer_getalphanum(buffer_t *buffer) {
@@ -40,39 +42,17 @@ char *lexer_getalphanum(buffer_t *buffer) {
 }
 
 char *lexer_getalphanum_rollback(buffer_t *buffer) {
-    char *result = malloc(LEXEM_SIZE + 1); // +1 for null character
-    if (!result) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-    int i = 0;
-    bool lockAcquired = false;
+    //size_t initialPosition = buffer->it; // Sauvegarde de la position initiale du curseur
+    buf_lock(buffer); // Verrouillage du buffer pour empêcher les modifications
 
-    if (!buffer->islocked) {
-        buf_lock(buffer); // Lock the buffer if not already locked
-        lockAcquired = true;
-    }
+    // Appel de lexer_getalphanum pour obtenir une séquence alphanumérique, si disponible
+    char *result = lexer_getalphanum(buffer);
 
-    char c = buf_getchar(buffer);
-    while (isalnum(c) && i < LEXEM_SIZE) {
-        result[i++] = c;
-        c = buf_getchar(buffer);
-    }
-    result[i] = '\0'; // Ensure string is null-terminated
+    // Remet le curseur à sa position initiale, indépendamment du résultat de lexer_getalphanum
+    //buffer->it = initialPosition;
+    buf_rollback_and_unlock(buffer, buffer->it); // Remet le curseur à sa position initiale et déverrouille le buffer
 
-    if (i == 0) { // No alphanum sequence found, rollback and unlock if necessary
-        free(result);
-        if (lockAcquired) {
-            buf_rollback_and_unlock(buffer, 1);
-        }
-        return NULL;
-    }
-
-    if (lockAcquired) {
-        buf_unlock(buffer); // Ensure to unlock if we locked it
-    }
-
-    return result; // Return the found sequence
+    return result; // Retourne le résultat obtenu par lexer_getalphanum
 }
 
 // Function to get the next operator
@@ -98,6 +78,9 @@ char *lexer_getop(buffer_t *buffer) {
 
 // Function to get the next number
 long lexer_getnumber(buffer_t *buffer) {
+    // Debugging: Print entry into function
+    printf("Debug: lexer_getnumber called.\n");
+
     char numStr[LEXEM_SIZE + 1];
     int i = 0;
     char c = buf_getchar_after_blank(buffer);
@@ -106,6 +89,11 @@ long lexer_getnumber(buffer_t *buffer) {
         numStr[i++] = c;
         c = buf_getchar(buffer);
     }
+    // Ensure the next character is not a digit, if it is, the number might be too long
+    if (isdigit(c)) {
+        fprintf(stderr, "Number exceeds maximum length.\n");
+        return -1; // Might need to handle this case differently
+    }
     numStr[i] = '\0';
 
     if (i == 0) {
@@ -113,4 +101,6 @@ long lexer_getnumber(buffer_t *buffer) {
     } else {
         return strtol(numStr, NULL, 10); // Convert string to long
     }
+
+    //refactorer cette fonction en utilisant lexer_getalphanum
 }
