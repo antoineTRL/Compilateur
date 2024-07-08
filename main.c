@@ -18,5 +18,21 @@ int main() {
         }
     } while (alphanum != NULL);
 
+    char *op;
+    while ((op = lexer_getop(&buffer)) != NULL) {
+        printf("Opérateur trouvé : %s\n", op);
+        free(op);
+    }
+
+    long number;
+    while (true) {
+        number = lexer_getnumber(&buffer);
+        if (number != -1) {
+            printf("Number found: %ld\n", number);
+        } else {
+            break; // Exit loop if no more numbers are found
+        }
+    }
+
     return EXIT_SUCCESS;
 }
