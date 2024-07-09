@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include "Ast.h"
+#include "ast.h"
 
 ast_t *ast_new_unary(ast_unary_e op, ast_t *operand) {
     // Allocate memory for the new AST node
