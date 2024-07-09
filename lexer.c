@@ -91,7 +91,7 @@ char *lexer_getop(buffer_t *buffer) {
     }
 
     char c = buf_getchar_after_blank(buffer);
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '!' || c == '=' || c == '<' || c == '>') {
+    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '!' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '^' || c == '~' || c == '%' || c == '?' || c == ':') {
         op[0] = c;
         op[1] = '\0';
 
