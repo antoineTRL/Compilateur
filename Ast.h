@@ -88,3 +88,6 @@ typedef struct ast_t {
         } ret;
     };
 } ast_t;
+
+ast_t *ast_new_unary(ast_unary_e op, ast_t *operand);
+void unary_example();

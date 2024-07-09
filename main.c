@@ -3,6 +3,7 @@
 #include <string.h>
 #include "buffer.h"
 #include "lexer.h"
+#include "Ast.h"
 
 int main() {
     buffer_t buffer;
@@ -39,6 +40,9 @@ int main() {
             break; // Exit loop if no more numbers are found
         }
     }
+
+    // Call the function from unary_example.c
+    unary_example();
 
     fclose(file);
     return EXIT_SUCCESS;

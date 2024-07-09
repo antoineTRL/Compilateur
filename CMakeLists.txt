@@ -8,4 +8,5 @@ add_executable(Compilateur main.c
         lexer.c
         buffer.c
         utils.c
-        Ast.c)
+        Ast.c
+        new_unary.c)
