@@ -283,6 +283,7 @@ void buf_print (buffer_t *buffer)
   printf(COLOR_BLUE "#### </buffer> ####\n" COLOR_DEFAULT);
 }
 
+/*
 void buf_init_with_string(buffer_t *buffer, const char *str, size_t str_len)
 {
     assert(str_len < BUF_SIZE);
@@ -297,4 +298,4 @@ void buf_init_with_string(buffer_t *buffer, const char *str, size_t str_len)
     buffer->bytesreadsincelock = 0;
     buffer->currchar = 0;
     buffer->eof = false;
-}
+}*/

@@ -6,12 +6,18 @@
 
 int main() {
     buffer_t buffer;
-    char inputStr[] = "Ceci est un test 12345 avec des mots et des chiffres 67890 + - * / ";
-    buf_init_with_string(&buffer, inputStr, strlen(inputStr));
+    FILE *file = fopen("example.txt", "r");
+    if (!file) {
+        fprintf(stderr, "Failed to open file\n");
+        return EXIT_FAILURE;
+    }
+
+    buf_init(&buffer, file); // Ensure buffer is initialized
+
 
     char *alphanum;
     do {
-        alphanum = lexer_getalphanum_rollback(&buffer);
+        alphanum = lexer_getalphanum(&buffer);
         if (alphanum) {
             printf("Séquence alphanumérique trouvée : %s\n", alphanum);
             free(alphanum);
@@ -34,5 +40,6 @@ int main() {
         }
     }
 
+    fclose(file);
     return EXIT_SUCCESS;
 }
