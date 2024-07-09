@@ -83,7 +83,7 @@ char *lexer_getop(buffer_t *buffer) {
     }
 
     // This is a placeholder implementation
-    char *op = malloc(3); // Assuming single character operators + null terminator
+    char *op = malloc(3);
     if (!op) {
         fprintf(stderr, "Memory allocation failed\n");
         exit(EXIT_FAILURE);
@@ -118,31 +118,6 @@ char *lexer_getop(buffer_t *buffer) {
         return NULL; // No operator found
     }
 }
-
-// Function to get the next number
-/*
-long lexer_getnumber(buffer_t *buffer) {
-    // Debugging: Print entry into function
-    printf("Debug: lexer_getnumber called.\n");
-
-    char *alphanumStr = lexer_getalphanum(buffer);
-
-    if (alphanumStr == NULL) {
-        return -1; // Indicates no alphanum sequence was found
-    }
-
-    // Check if the alphanumStr consists only of digits
-    for (int i = 0; alphanumStr[i] != '\0'; i++) {
-        if (!isdigit(alphanumStr[i])) {
-            free(alphanumStr); // Free the allocated memory
-            return -1; // Indicates that the sequence is not a valid number
-        }
-    }
-
-    long number = strtol(alphanumStr, NULL, 10); // Convert string to long
-    free(alphanumStr); // Free the allocated memory
-    return number;
-}*/
 
 long lexer_getnumber(buffer_t *buffer) {
     // Call lexer_getalphanum to get the alphanumeric sequence
