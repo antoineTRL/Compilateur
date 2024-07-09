@@ -55,6 +55,7 @@ char *lexer_getalphanum_rollback(buffer_t *buffer) {
     return result; // Retourne le résultat obtenu par lexer_getalphanum
 }
 
+
 // Function to get the next operator
 char *lexer_getop(buffer_t *buffer) {
     // Operators are defined as per your language's specification
@@ -81,26 +82,21 @@ long lexer_getnumber(buffer_t *buffer) {
     // Debugging: Print entry into function
     printf("Debug: lexer_getnumber called.\n");
 
-    char numStr[LEXEM_SIZE + 1];
-    int i = 0;
-    char c = buf_getchar_after_blank(buffer);
+    char *alphanumStr = lexer_getalphanum(buffer);
 
-    while (isdigit(c) && i < LEXEM_SIZE) {
-        numStr[i++] = c;
-        c = buf_getchar(buffer);
-    }
-    // Ensure the next character is not a digit, if it is, the number might be too long
-    if (isdigit(c)) {
-        fprintf(stderr, "Number exceeds maximum length.\n");
-        return -1; // Might need to handle this case differently
-    }
-    numStr[i] = '\0';
-
-    if (i == 0) {
-        return -1; // Indicates no number was found
-    } else {
-        return strtol(numStr, NULL, 10); // Convert string to long
+    if (alphanumStr == NULL) {
+        return -1; // Indicates no alphanum sequence was found
     }
 
-    //refactorer cette fonction en utilisant lexer_getalphanum
+    // Check if the alphanumStr consists only of digits
+    for (int i = 0; alphanumStr[i] != '\0'; i++) {
+        if (!isdigit(alphanumStr[i])) {
+            free(alphanumStr); // Free the allocated memory
+            return -1; // Indicates that the sequence is not a valid number
+        }
+    }
+
+    long number = strtol(alphanumStr, NULL, 10); // Convert string to long
+    free(alphanumStr); // Free the allocated memory
+    return number;
 }
