@@ -93,7 +93,16 @@ char *lexer_getop(buffer_t *buffer) {
     char c = buf_getchar_after_blank(buffer);
     if (c == '+' || c == '-' || c == '*' || c == '/' || c == '!' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '^' || c == '~' || c == '%' || c == '?' || c == ':') {
         op[0] = c;
-        op[1] = '\0';
+        if (c == '=' || c == '&' || c == '|' || c == '<' || c == '>' || c == '+' || c == '-' ) {
+            char next = buf_getchar(buffer);
+            if (next == '=' || next == '&' || next == '|' || next == '<' || next == '>' || next == '+' || next == '-' ) {
+                op[1] = next;
+                op[2] = '\0';
+            } else {
+                op[1] = '\0';
+            }
+        } else {
+        op[1] = '\0';}
 
         if (lockAcquired) {
             buf_unlock(buffer); // Rollback and unlock if we locked it here
