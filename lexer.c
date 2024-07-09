@@ -82,7 +82,6 @@ char *lexer_getop(buffer_t *buffer) {
         lockAcquired = true;
     }
 
-    // Operators are defined as per your language's specification
     // This is a placeholder implementation
     char *op = malloc(3); // Assuming single character operators + null terminator
     if (!op) {
@@ -93,7 +92,7 @@ char *lexer_getop(buffer_t *buffer) {
     char c = buf_getchar_after_blank(buffer);
     if (c == '+' || c == '-' || c == '*' || c == '/' || c == '!' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '^' || c == '~' || c == '%' || c == '?' || c == ':') {
         op[0] = c;
-        if (c == '=' || c == '&' || c == '|' || c == '<' || c == '>' || c == '+' || c == '-' ) {
+        if (c == '=' || c == '&' || c == '|' || c == '<' || c == '>' || c == '+' || c == '-' || c == '!') {
             char next = buf_getchar(buffer);
             if (next == '=' || next == '&' || next == '|' || next == '<' || next == '>' || next == '+' || next == '-' ) {
                 op[1] = next;
