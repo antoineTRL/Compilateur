@@ -7,4 +7,5 @@ add_executable(Compilateur main.c
         lexer.h
         lexer.c
         buffer.c
-        utils.c)
+        utils.c
+        Ast.c)
