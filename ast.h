@@ -94,11 +94,14 @@ typedef struct ast_t {
 } ast_t;
 
 typedef struct ast_list_t {
-    ast_t *node;
+    ast_t *elem;
     struct ast_list_t *next;
 } ast_list_t;
 
+
 // Function prototypes
+ast_list_t *ast_list_new_node(ast_t *elem);
+ast_list_t *ast_list_add(ast_list_t **list, ast_t *elem);
 ast_t *ast_new_variable (char *name, var_type_e type);
 ast_t *ast_new_function(char *name, var_type_e return_type, ast_list_t *params, ast_list_t *stmts);
 ast_t *ast_new_fncall(char *name, ast_list_t *args);

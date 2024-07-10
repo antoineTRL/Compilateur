@@ -174,4 +174,27 @@ ast_t *ast_new_return(ast_t *expr) {
     return node;
 }
 
+ast_list_t *ast_list_new_node(ast_t *elem) {
+    ast_list_t *node = (ast_list_t *)malloc(sizeof(ast_list_t));
+    if (!node) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    node->elem = elem;
+    node->next = NULL;
+    return node;
+}
 
+ast_list_t *ast_list_add(ast_list_t **list, ast_t *elem) {
+    ast_list_t *node = ast_list_new_node(elem);
+    if (!*list) {
+        *list = node;
+    } else {
+        ast_list_t *current = *list;
+        while (current->next) {
+            current = current->next;
+        }
+        current->next = node;
+    }
+    return node;
+}

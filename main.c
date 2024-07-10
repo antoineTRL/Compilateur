@@ -168,5 +168,38 @@ int main() {
         printf("Failed to create return node \n");
     }
 
+    // Test ast_list_new_node and ast_list_add functions
+    printf("\nTesting ast_list_new_node and ast_list_add functions:\n");
+
+    // Create a new AST node for testing
+    ast_t *test_node = ast_new_variable("test", VAR_TYPE_INT);
+
+    // Create a new list with the test node
+    ast_list_t *list = ast_list_new_node(test_node);
+    if (list && list->elem == test_node) {
+        printf("List Node created with element name: %s\n", list->elem->var.name);
+    } else {
+        printf("Failed to create list node.\n");
+    }
+
+    // Add another node to the list
+    ast_t *another_node = ast_new_variable("anotherNode", VAR_TYPE_VOID);
+    ast_list_add(&list, another_node);
+    if (list->next && list->next->elem == another_node) {
+        printf("Another node added with element name: %s\n", list->next->elem->var.name);
+    } else {
+        printf("Failed to add another node to the list.\n");
+    }
+
+    // Clean up the list
+    ast_list_t *current = list;
+    while (current) {
+        ast_list_t *next = current->next;
+        free(current->elem->var.name);
+        free(current->elem);
+        free(current);
+        current = next;
+    }
+
     return EXIT_SUCCESS;
 }
