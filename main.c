@@ -103,7 +103,7 @@ int main() {
     // Create and print function call node
     ast_t *fncall_node = ast_new_fncall("callFunction", args);
     if (fncall_node) {
-        printf("Function Call Node:\n");
+        printf("Function Call Node: \n", fncall_node->call.args);
         printf("Name: %s\n", fncall_node->call.name);
         // Normally, you would also print args here if they were populated
         free(fncall_node->call.name);
@@ -121,16 +121,52 @@ int main() {
     // Create and print compound statement node
     ast_t *comp_stmt_node = ast_new_comp_stmt(comp_stmts);
     if (comp_stmt_node) {
-        printf("Compound Statement Node:\n");
-        // Normally, you would also print stmts here if they were populated
+        printf("Compound Statement Node:\n", comp_stmt_node->compound_stmt.stmts);
         free(comp_stmt_node);
     } else {
         printf("Failed to create compound statement node.\n");
     }
 
     printf("\nTesting ast_new_integer function:\n");
-    ast_t *integer_node = ast_new_integer(40);
+    ast_t *integer_node = ast_new_integer(10);
     printf("AST Node created: Type = %d, Value = %ld\n", integer_node->type, integer_node->integer);
+
+    // Test ast_new_assignment function
+    printf("\nTesting ast_new_assignment function:\n");
+    assignment_example();
+
+    // Test ast_new_loop function
+    printf("\nTesting ast_new_loop function:\n");
+
+    // Create some dummy condition and statement for the loop
+    ast_t *loop_condition = ast_new_variable("condition", VAR_TYPE_INT);
+    ast_t *loop_stmt = ast_new_variable("stmt", VAR_TYPE_VOID);
+
+    // Create and print loop node
+    ast_t *loop_node = ast_new_loop(loop_condition, loop_stmt);
+    if (loop_node) {
+        printf("Loop Node: %s , %s \n", loop_node->loop.condition->var.name, loop_node->loop.stmt->var.name);
+        // Normally, you would also print condition and stmt here if they were populated
+        free(loop_node);
+    } else {
+        printf("Failed to create loop node.\n");
+    }
+
+    // Test ast_new_return function
+    printf("\nTesting ast_new_return function:\n");
+
+    // Create some dummy expression for the return statement
+    ast_t *return_expr = ast_new_variable("returnExpr", VAR_TYPE_INT);
+
+    // Create and print return node
+    ast_t *return_node = ast_new_return(return_expr);
+    if (return_node) {
+        printf("Return Node: %s \n", return_node->ret.expr->var.name);
+        // Normally, you would also print expr here if it were populated
+        free(return_node);
+    } else {
+        printf("Failed to create return node \n");
+    }
 
     return EXIT_SUCCESS;
 }
