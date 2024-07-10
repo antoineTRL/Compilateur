@@ -89,5 +89,8 @@ typedef struct ast_t {
     };
 } ast_t;
 
+// Function to create a new AST node for a binary operation
+ast_t *ast_new_binary(ast_binary_e op, ast_t *left, ast_t *right);
+
 ast_t *ast_new_unary(ast_unary_e op, ast_t *operand);
 void unary_example();
