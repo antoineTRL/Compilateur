@@ -174,6 +174,27 @@ ast_t *ast_new_return(ast_t *expr) {
     return node;
 }
 
+ast_t *ast_new_declaration(ast_t *lvalue, ast_t *rvalue) {
+    if (!lvalue || !rvalue) {
+        fprintf(stderr, "Invalid lvalue or rvalue\n");
+        return NULL;
+    }
+
+    // Allocate memory for the new AST node
+    ast_t *node = (ast_t *)malloc(sizeof(ast_t));
+    if (!node) {
+        fprintf(stderr, "Memory allocation failed\n");
+        return NULL;
+    }
+
+    // Initialize the node
+    node->type = AST_DECLARATION;
+    node->assignment.lvalue = lvalue;
+    node->assignment.rvalue = rvalue;
+
+    return node;
+}
+
 ast_list_t *ast_list_new_node(ast_t *elem) {
     ast_list_t *node = (ast_list_t *)malloc(sizeof(ast_list_t));
     if (!node) {

@@ -201,5 +201,8 @@ int main() {
         current = next;
     }
 
+    printf("\nTesting assignment_example function:\n");
+    declaration_example();
+
     return EXIT_SUCCESS;
 }

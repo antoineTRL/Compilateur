@@ -56,3 +56,32 @@ void assignment_example() {
     free(rvalue);
     free(assignment_node);
 }
+
+void declaration_example() {
+    // Create a sample lvalue node
+    ast_t *lvalue = (ast_t *) malloc(sizeof(ast_t));
+    if (!lvalue) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    lvalue->type = AST_VARIABLE;
+    lvalue->var.name = strdup("x");
+    lvalue->var.type = VAR_TYPE_INT;
+
+    // Create a sample rvalue node
+    ast_t *rvalue = (ast_t *) malloc(sizeof(ast_t));
+    if (!rvalue) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    rvalue->type = AST_INTEGER;
+    rvalue->integer = 42;
+
+    // Create a declaration node using the ast_new_declaration function
+    ast_t *declaration_node = ast_new_declaration(lvalue, rvalue);
+    if (declaration_node) {
+        printf("Declaration node created:\n");
+        printf("Lvalue: %s\n", declaration_node->assignment.lvalue->var.name);
+        printf("Rvalue: %ld\n", declaration_node->assignment.rvalue->integer);
+    }
+}
