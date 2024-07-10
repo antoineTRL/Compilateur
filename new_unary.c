@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "Ast.h"
+#include "ast.h"
 
 void unary_example() {
     // Create a sample operand node
