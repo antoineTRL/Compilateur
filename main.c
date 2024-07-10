@@ -204,5 +204,8 @@ int main() {
     printf("\nTesting assignment_example function:\n");
     declaration_example();
 
+    printf("\nTesting binary_example function:\n");
+    binary_example();
+
     return EXIT_SUCCESS;
 }

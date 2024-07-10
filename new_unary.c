@@ -22,6 +22,33 @@ void unary_example() {
     }
 }
 
+void binary_example(){
+    // Create a sample left node
+    ast_t *left = (ast_t *)malloc(sizeof(ast_t));
+    if (!left) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    left->type = AST_INTEGER;
+    left->integer = 10;
+
+    // Create a sample right node
+    ast_t *right = (ast_t *)malloc(sizeof(ast_t));
+    if (!right) {
+        fprintf(stderr, "Memory allocation failed\n");
+        exit(EXIT_FAILURE);
+    }
+    right->type = AST_INTEGER;
+    right->integer = 20;
+
+    // Create a binary node using the ast_new_binary function
+    ast_t *binary_node = ast_new_binary(AST_BINARY_ADD, left, right);
+    if (binary_node) {
+        printf("Binary node created with type: %d\n", binary_node->binary.op);
+    }
+
+}
+
 void assignment_example() {
     // Create a sample lvalue node
     ast_t *lvalue = (ast_t *)malloc(sizeof(ast_t));

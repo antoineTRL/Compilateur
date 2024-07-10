@@ -111,6 +111,7 @@ ast_t *ast_new_integer(long val);
 ast_t *ast_new_binary(ast_binary_e op, ast_t *left, ast_t *right);
 ast_t *ast_new_unary(ast_unary_e op, ast_t *operand);
 void unary_example();
+void binary_example();
 ast_t *ast_new_assignment(ast_t *lvalue, ast_t *rvalue);
 ast_t *ast_new_declaration(ast_t *lvalue, ast_t *rvalue);
 void assignment_example();
