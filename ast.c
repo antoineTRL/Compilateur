@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <string.h>
 #include "ast.h"
 
 ast_t *ast_new_unary(ast_unary_e op, ast_t *operand) {
