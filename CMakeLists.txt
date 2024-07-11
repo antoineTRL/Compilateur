@@ -9,4 +9,5 @@ add_executable(Compilateur main.c
         buffer.c
         utils.c
         ast.c
-        new_unary.c)
+        new_unary.c
+        symbol_table.c)

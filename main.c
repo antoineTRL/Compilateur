@@ -4,6 +4,7 @@
 #include "buffer.h"
 #include "lexer.h"
 #include "ast.h"
+#include "symbol_table.h"
 
 int main() {
     buffer_t buffer;
@@ -14,13 +15,14 @@ int main() {
     }
 
     buf_init(&buffer, file); // Ensure buffer is initialized
-
+    symbol_table_t *table = symbol_table_init();
 
     char *alphanum;
     do {
         alphanum = lexer_getalphanum(&buffer);
         if (alphanum) {
             printf("Séquence alphanumérique trouvée : %s\n", alphanum);
+            symbol_table_add(table, alphanum, VAR_TYPE_VOID);
             free(alphanum);
         }
     } while (alphanum != NULL);
@@ -45,7 +47,7 @@ int main() {
     printf("\nTesting unary_example function:\n");
     unary_example();
 
-    fclose(file);
+
 
     // Test ast_new_variable function
     printf("\nTesting ast_new_variable function:\n");
@@ -103,7 +105,7 @@ int main() {
     // Create and print function call node
     ast_t *fncall_node = ast_new_fncall("callFunction", args);
     if (fncall_node) {
-        printf("Function Call Node: \n", fncall_node->call.args);
+        printf("Function Call Node: \n");
         printf("Name: %s\n", fncall_node->call.name);
         // Normally, you would also print args here if they were populated
         free(fncall_node->call.name);
@@ -121,7 +123,7 @@ int main() {
     // Create and print compound statement node
     ast_t *comp_stmt_node = ast_new_comp_stmt(comp_stmts);
     if (comp_stmt_node) {
-        printf("Compound Statement Node:\n", comp_stmt_node->compound_stmt.stmts);
+        printf("Compound Statement Node:\n");
         free(comp_stmt_node);
     } else {
         printf("Failed to create compound statement node.\n");
@@ -206,6 +208,24 @@ int main() {
 
     printf("\nTesting binary_example function:\n");
     binary_example();
+
+    printf("\nTesting symbol_table functions:\n");
+    symbol_table_entry_t *entry = symbol_table_lookup(table, "Ceci");
+    if (entry) {
+        printf("Found entry: %s, Type: %d\n", entry->name, entry->type);
+    } else {
+        printf("Entry not found\n");
+    }
+
+    entry = symbol_table_lookup(table, "test");
+    if (entry) {
+        printf("Found entry: %s, Type: %d\n", entry->name, entry->type);
+    } else {
+        printf("Entry not found\n");
+    }
+
+    fclose(file);
+    symbol_table_free(table);
 
     return EXIT_SUCCESS;
 }

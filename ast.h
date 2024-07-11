@@ -1,3 +1,6 @@
+#ifndef AST_H
+#define AST_H
+
 typedef enum {
     AST_VOID,
     AST_INTEGER,
@@ -118,3 +121,5 @@ void assignment_example();
 void declaration_example();
 ast_t *ast_new_loop(ast_t *condition, ast_t *stmt);
 ast_t *ast_new_return(ast_t *expr);
+
+#endif // AST_H
