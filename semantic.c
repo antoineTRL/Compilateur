@@ -1,4 +1,3 @@
-// semantic.c
 #include <stdio.h>
 #include <stdlib.h>
 #include "semantic.h"
@@ -67,4 +66,9 @@ void check_type(ast_t *node, symbol_table_t *table) {
             fprintf(stderr, "Unknown AST node type: %d\n", node->type);
             exit(EXIT_FAILURE);
     }
+}
+
+int semantic_analysis(ast_t *node, symbol_table_t *table) {
+    check_type(node, table);
+    return 1; // Return 1 if semantic analysis passes
 }

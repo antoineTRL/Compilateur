@@ -7,6 +7,7 @@
 #include "symbol_table.h"
 #include "parser.h"
 #include "semantic.h"
+#include "codegen.h"
 
 // Function declarations for testing
 void unary_example();
@@ -135,15 +136,27 @@ int main() {
     printf("\nTesting parser functions:\n");
     parser_t parser;
     parser_init(&parser, &buffer);
-    parser.symbol_table = table; // Set the symbol table for the parser
 
     ast_t *program = parse_program(&parser);
 
-    // Perform semantic analysis on the entire program
-    check_type(program, table);
-
     // Print the AST for testing
     print_ast(program, 0);
+
+    // Perform semantic analysis
+    printf("\nTesting semantic analysis:\n");
+    if (semantic_analysis(program, table)) {
+        printf("Semantic analysis passed.\n");
+    } else {
+        printf("Semantic analysis failed.\n");
+    }
+
+    // Generate intermediate code
+    printf("\nGenerating intermediate code:\n");
+    codegen_context_t codegen_context;
+    codegen_init(&codegen_context);
+    generate_code(program, &codegen_context);
+    printf("%s", codegen_context.code);
+    codegen_free(&codegen_context);
 
     // Clean up
     fclose(file);

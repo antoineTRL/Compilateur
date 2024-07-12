@@ -14,4 +14,6 @@ add_executable(Compilateur main.c
         parser.h
         parcer.c
         semantic.h
-        semantic.c)
+        semantic.c
+        codegen.h
+        codegen.c)
