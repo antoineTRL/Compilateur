@@ -5,6 +5,95 @@
 #include "lexer.h"
 #include "ast.h"
 #include "symbol_table.h"
+#include "parser.h"
+#include "semantic.h"
+#include "codegen.h"
+
+// Function declarations for testing
+void unary_example();
+void assignment_example();
+void declaration_example();
+void binary_example();
+void print_ast(ast_t *node, int depth);
+void print_ast_list(ast_list_t *list, int depth);
+
+// Function to print the AST node
+void print_ast(ast_t *node, int depth) {
+    if (!node) return;
+
+    for (int i = 0; i < depth; i++) {
+        printf("  ");
+    }
+
+    switch (node->type) {
+        case AST_VOID:
+            printf("AST_VOID\n");
+            break;
+        case AST_INTEGER:
+            printf("AST_INTEGER: %ld\n", node->integer);
+            break;
+        case AST_VARIABLE:
+            printf("AST_VARIABLE: %s (type %d)\n", node->var.name, node->var.type);
+            break;
+        case AST_BINARY:
+            printf("AST_BINARY (op %d):\n", node->binary.op);
+            print_ast(node->binary.left, depth + 1);
+            print_ast(node->binary.right, depth + 1);
+            break;
+        case AST_UNARY:
+            printf("AST_UNARY (op %d):\n", node->unary.op);
+            print_ast(node->unary.operand, depth + 1);
+            break;
+        case AST_FUNCTION:
+            printf("AST_FUNCTION: %s (return type %d)\n", node->function.name, node->function.return_type);
+            printf("Params:\n");
+            print_ast_list(node->function.params, depth + 1);
+            printf("Statements:\n");
+            print_ast_list(node->function.stmts, depth + 1);
+            break;
+        case AST_FNCALL:
+            printf("AST_FNCALL: %s\n", node->call.name);
+            print_ast_list(node->call.args, depth + 1);
+            break;
+        case AST_COMPOUND_STATEMENT:
+            printf("AST_COMPOUND_STATEMENT:\n");
+            print_ast_list(node->compound_stmt.stmts, depth + 1);
+            break;
+        case AST_CONDITION:
+            printf("AST_CONDITION:\n");
+            printf("Condition:\n");
+            print_ast(node->condition.condition, depth + 1);
+            printf("Then:\n");
+            print_ast(node->condition.then, depth + 1);
+            if (node->condition.Else) {
+                printf("Else:\n");
+                print_ast(node->condition.Else, depth + 1);
+            }
+            break;
+        case AST_LOOP:
+            printf("AST_LOOP:\n");
+            printf("Condition:\n");
+            print_ast(node->loop.condition, depth + 1);
+            printf("Statement:\n");
+            print_ast(node->loop.stmt, depth + 1);
+            break;
+        case AST_RETURN:
+            printf("AST_RETURN:\n");
+            print_ast(node->ret.expr, depth + 1);
+            break;
+        default:
+            printf("Unknown AST node type: %d\n", node->type);
+            break;
+    }
+}
+
+// Function to print the AST list
+void print_ast_list(ast_list_t *list, int depth) {
+    while (list) {
+        print_ast(list->elem, depth);
+        list = list->next;
+    }
+}
 
 int main() {
     buffer_t buffer;
@@ -43,187 +132,33 @@ int main() {
         }
     }
 
-    // Call the function from unary_example.c
-    printf("\nTesting unary_example function:\n");
-    unary_example();
+    // Initialize and test the parser
+    printf("\nTesting parser functions:\n");
+    parser_t parser;
+    parser_init(&parser, &buffer);
 
+    ast_t *program = parse_program(&parser);
 
+    // Print the AST for testing
+    print_ast(program, 0);
 
-    // Test ast_new_variable function
-    printf("\nTesting ast_new_variable function:\n");
-
-    // Create and print variable node for VAR_TYPE_INT
-    ast_t *var_node_int = ast_new_variable("x", VAR_TYPE_INT);
-    if (var_node_int) {
-        printf("Variable Node (INT):\n");
-        printf("Name: %s\n", var_node_int->var.name);
-        printf("Type: %d\n", var_node_int->var.type);
-        free(var_node_int->var.name);
-        free(var_node_int);
+    // Perform semantic analysis
+    printf("\nTesting semantic analysis:\n");
+    if (semantic_analysis(program, table)) {
+        printf("Semantic analysis passed.\n");
     } else {
-        printf("Failed to create variable node (INT).\n");
+        printf("Semantic analysis failed.\n");
     }
 
-    // Create and print variable node for VAR_TYPE_VOID
-    ast_t *var_node_void = ast_new_variable("y", VAR_TYPE_VOID);
-    if (var_node_void) {
-        printf("Variable Node (VOID):\n");
-        printf("Name: %s\n", var_node_void->var.name);
-        printf("Type: %d\n", var_node_void->var.type);
-        free(var_node_void->var.name);
-        free(var_node_void);
-    } else {
-        printf("Failed to create variable node (VOID).\n");
-    }
+    // Generate intermediate code
+    printf("\nGenerating intermediate code:\n");
+    codegen_context_t codegen_context;
+    codegen_init(&codegen_context);
+    generate_code(program, &codegen_context);
+    printf("%s", codegen_context.code);
+    codegen_free(&codegen_context);
 
-    // Test ast_new_function function
-    printf("\nTesting ast_new_function function:\n");
-
-    // Create some dummy parameter and statement lists for the function
-    ast_list_t *params = NULL;
-    ast_list_t *stmts = NULL;
-
-    // Create and print function node
-    ast_t *func_node = ast_new_function("myFunction", VAR_TYPE_INT, params, stmts);
-    if (func_node) {
-        printf("Function Node:\n");
-        printf("Name: %s\n", func_node->function.name);
-        printf("Return Type: %d\n", func_node->function.return_type);
-        // Normally, you would also print params and stmts here if they were populated
-        free(func_node->function.name);
-        free(func_node);
-    } else {
-        printf("Failed to create function node.\n");
-    }
-
-    // Test ast_new_fncall function
-    printf("\nTesting ast_new_fncall function:\n");
-
-    // Create some dummy argument list for the function call
-    ast_list_t *args = NULL;
-
-    // Create and print function call node
-    ast_t *fncall_node = ast_new_fncall("callFunction", args);
-    if (fncall_node) {
-        printf("Function Call Node: \n");
-        printf("Name: %s\n", fncall_node->call.name);
-        // Normally, you would also print args here if they were populated
-        free(fncall_node->call.name);
-        free(fncall_node);
-    } else {
-        printf("Failed to create function call node.\n");
-    }
-
-    // Test ast_new_comp_stmt function
-    printf("\nTesting ast_new_comp_stmt function:\n");
-
-    // Create some dummy statement list for the compound statement
-    ast_list_t *comp_stmts = NULL;
-
-    // Create and print compound statement node
-    ast_t *comp_stmt_node = ast_new_comp_stmt(comp_stmts);
-    if (comp_stmt_node) {
-        printf("Compound Statement Node:\n");
-        free(comp_stmt_node);
-    } else {
-        printf("Failed to create compound statement node.\n");
-    }
-
-    printf("\nTesting ast_new_integer function:\n");
-    ast_t *integer_node = ast_new_integer(10);
-    printf("AST Node created: Type = %d, Value = %ld\n", integer_node->type, integer_node->integer);
-
-    // Test ast_new_assignment function
-    printf("\nTesting ast_new_assignment function:\n");
-    assignment_example();
-
-    // Test ast_new_loop function
-    printf("\nTesting ast_new_loop function:\n");
-
-    // Create some dummy condition and statement for the loop
-    ast_t *loop_condition = ast_new_variable("condition", VAR_TYPE_INT);
-    ast_t *loop_stmt = ast_new_variable("stmt", VAR_TYPE_VOID);
-
-    // Create and print loop node
-    ast_t *loop_node = ast_new_loop(loop_condition, loop_stmt);
-    if (loop_node) {
-        printf("Loop Node: %s , %s \n", loop_node->loop.condition->var.name, loop_node->loop.stmt->var.name);
-        // Normally, you would also print condition and stmt here if they were populated
-        free(loop_node);
-    } else {
-        printf("Failed to create loop node.\n");
-    }
-
-    // Test ast_new_return function
-    printf("\nTesting ast_new_return function:\n");
-
-    // Create some dummy expression for the return statement
-    ast_t *return_expr = ast_new_variable("returnExpr", VAR_TYPE_INT);
-
-    // Create and print return node
-    ast_t *return_node = ast_new_return(return_expr);
-    if (return_node) {
-        printf("Return Node: %s \n", return_node->ret.expr->var.name);
-        // Normally, you would also print expr here if it were populated
-        free(return_node);
-    } else {
-        printf("Failed to create return node \n");
-    }
-
-    // Test ast_list_new_node and ast_list_add functions
-    printf("\nTesting ast_list_new_node and ast_list_add functions:\n");
-
-    // Create a new AST node for testing
-    ast_t *test_node = ast_new_variable("test", VAR_TYPE_INT);
-
-    // Create a new list with the test node
-    ast_list_t *list = ast_list_new_node(test_node);
-    if (list && list->elem == test_node) {
-        printf("List Node created with element name: %s\n", list->elem->var.name);
-    } else {
-        printf("Failed to create list node.\n");
-    }
-
-    // Add another node to the list
-    ast_t *another_node = ast_new_variable("anotherNode", VAR_TYPE_VOID);
-    ast_list_add(&list, another_node);
-    if (list->next && list->next->elem == another_node) {
-        printf("Another node added with element name: %s\n", list->next->elem->var.name);
-    } else {
-        printf("Failed to add another node to the list.\n");
-    }
-
-    // Clean up the list
-    ast_list_t *current = list;
-    while (current) {
-        ast_list_t *next = current->next;
-        free(current->elem->var.name);
-        free(current->elem);
-        free(current);
-        current = next;
-    }
-
-    printf("\nTesting assignment_example function:\n");
-    declaration_example();
-
-    printf("\nTesting binary_example function:\n");
-    binary_example();
-
-    printf("\nTesting symbol_table functions:\n");
-    symbol_table_entry_t *entry = symbol_table_lookup(table, "Ceci");
-    if (entry) {
-        printf("Found entry: %s, Type: %d\n", entry->name, entry->type);
-    } else {
-        printf("Entry not found\n");
-    }
-
-    entry = symbol_table_lookup(table, "test");
-    if (entry) {
-        printf("Found entry: %s, Type: %d\n", entry->name, entry->type);
-    } else {
-        printf("Entry not found\n");
-    }
-
+    // Clean up
     fclose(file);
     symbol_table_free(table);
 

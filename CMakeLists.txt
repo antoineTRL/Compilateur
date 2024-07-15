@@ -10,4 +10,10 @@ add_executable(Compilateur main.c
         utils.c
         ast.c
         new_unary.c
-        symbol_table.c)
+        symbol_table.c
+        parser.h
+        parcer.c
+        semantic.h
+        semantic.c
+        codegen.h
+        codegen.c)

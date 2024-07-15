@@ -47,6 +47,7 @@ typedef enum {
 
 typedef struct ast_t {
     ast_node_type_e type;
+    var_type_e var_type;// to store the type of the node
     union {
         long integer;
         struct {
