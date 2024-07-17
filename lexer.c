@@ -19,7 +19,14 @@ token_t *lexer_get_token(buffer_t *buffer) {
             value[index++] = ch;
             ch = buf_getchar(buffer);
         } while (isdigit(ch));
-        buf_rollback(buffer, 1);
+        // S'assurer que le buffer est verrouillé avant de faire un rollback
+        if (!buffer->islocked) {
+            buf_lock(buffer);
+            buf_rollback(buffer, 1);
+            buf_unlock(buffer);
+        } else {
+            buf_rollback(buffer, 1);
+        }
         value[index] = '\0';
 
         token_t *token = malloc(sizeof(token_t));
@@ -34,7 +41,14 @@ token_t *lexer_get_token(buffer_t *buffer) {
             value[index++] = ch;
             ch = buf_getchar(buffer);
         } while (isalnum(ch));
-        buf_rollback(buffer, 1);
+        // S'assurer que le buffer est verrouillé avant de faire un rollback
+        if (!buffer->islocked) {
+            buf_lock(buffer);
+            buf_rollback(buffer, 1);
+            buf_unlock(buffer);
+        } else {
+            buf_rollback(buffer, 1);
+        }
         value[index] = '\0';
 
         token_t *token = malloc(sizeof(token_t));
