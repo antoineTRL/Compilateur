@@ -1,143 +1,69 @@
+#include "lexer.h"
 #include <ctype.h>
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
-#include "lexer.h"
 
-char *lexer_getalphanum(buffer_t *buffer) {
-    char *result = malloc(LEXEM_SIZE + 1); // +1 for null character
-    if (!result) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE); // Exiting here might be harsh; consider another error handling strategy.
-    }
-    int i = 0;
+token_t *lexer_get_token(buffer_t *buffer) {
+    char *value = malloc(100);
+    int index = 0;
+    char ch = buf_getchar(buffer);
 
-    buf_skipblank(buffer);
-
-    bool lockAcquired = false;
-    if (!buffer->islocked) {
-        buf_lock(buffer); // Lock the buffer if not already locked
-        lockAcquired = true;
+    // Skip whitespace
+    while (isspace(ch)) {
+        ch = buf_getchar(buffer);
     }
 
-    char c = buf_getchar(buffer);
-    while (isalnum(c) && i < LEXEM_SIZE) {
-        result[i++] = c;
-        c = buf_getchar(buffer);
-    }
-    result[i] = '\0'; // Ensure string is null-terminated
+    // Recognize numbers
+    if (isdigit(ch)) {
+        do {
+            value[index++] = ch;
+            ch = buf_getchar(buffer);
+        } while (isdigit(ch));
+        buf_rollback(buffer, 1);
+        value[index] = '\0';
 
-    if (c != '\0' && lockAcquired) {
-        buf_rollback_and_unlock(buffer, 1); // Rollback and unlock if we locked it here
-    } else if (lockAcquired) {
-        buf_unlock(buffer); // Ensure to unlock if we locked it and didn't rollback
-    }
-
-    if (i == 0) { // No alphanum sequence found, free memory and return NULL
-        free(result);
-        return NULL;
+        token_t *token = malloc(sizeof(token_t));
+        token->type = TOKEN_NUMBER;
+        token->value = value;
+        return token;
     }
 
-    return result; // Return the found sequence
-}
+    // Recognize identifiers and keywords
+    if (isalpha(ch)) {
+        do {
+            value[index++] = ch;
+            ch = buf_getchar(buffer);
+        } while (isalnum(ch));
+        buf_rollback(buffer, 1);
+        value[index] = '\0';
 
-/*char *lexer_getalphanum_rollback(buffer_t *buffer) {
-    //size_t initialPosition = buffer->it; // Sauvegarde de la position initiale du curseur
-    buf_lock(buffer); // Verrouillage du buffer pour empêcher les modifications
-
-    // Appel de lexer_getalphanum pour obtenir une séquence alphanumérique, si disponible
-    char *result = lexer_getalphanum(buffer);
-
-    // Remet le curseur à sa position initiale, indépendamment du résultat de lexer_getalphanum
-    //buffer->it = initialPosition;
-    buf_rollback_and_unlock(buffer, buffer->it); // Remet le curseur à sa position initiale et déverrouille le buffer
-
-    return result; // Retourne le résultat obtenu par lexer_getalphanum
-}*/
-
-char *lexer_getalphanum_rollback(buffer_t *buffer) {
-    buf_lock(buffer); // Lock the buffer to prevent modifications
-
-    // Call lexer_getalphanum to get an alphanumeric sequence, if available
-    char *result = lexer_getalphanum(buffer);
-
-    if (result == NULL) {
-        buf_unlock(buffer); // Unlock the buffer if no sequence is found
-        return NULL; // Return NULL if no alphanumeric sequence is found
-    }
-
-    // Rollback the buffer to its initial position and unlock it
-    buf_rollback_and_unlock(buffer, buffer->it);
-
-    return result; // Return the found sequence
-}
-
-
-// Function to get the next operator
-char *lexer_getop(buffer_t *buffer) {
-    bool lockAcquired = false;
-
-    if (!buffer->islocked) {
-        buf_lock(buffer); // Lock the buffer if not already locked
-        lockAcquired = true;
-    }
-
-    // This is a placeholder implementation
-    char *op = malloc(3);
-    if (!op) {
-        fprintf(stderr, "Memory allocation failed\n");
-        exit(EXIT_FAILURE);
-    }
-
-    char c = buf_getchar_after_blank(buffer);
-    if (c == '+' || c == '-' || c == '*' || c == '/' || c == '!' || c == '=' || c == '<' || c == '>' || c == '&' || c == '|' || c == '^' || c == '~' || c == '%' || c == '?' || c == ':') {
-        op[0] = c;
-        if (c == '=' || c == '&' || c == '|' || c == '<' || c == '>' || c == '+' || c == '-' || c == '!') {
-            char next = buf_getchar(buffer);
-            if (next == '=' || next == '&' || next == '|' || next == '<' || next == '>' || next == '+' || next == '-' ) {
-                op[1] = next;
-                op[2] = '\0';
-            } else {
-                op[1] = '\0';
-            }
+        token_t *token = malloc(sizeof(token_t));
+        if (strcmp(value, "let") == 0) {
+            token->type = TOKEN_LET;
+        } else if (strcmp(value, "print") == 0) {
+            token->type = TOKEN_PRINT;
         } else {
-        op[1] = '\0';}
-
-        if (lockAcquired) {
-            buf_unlock(buffer); // Rollback and unlock if we locked it here
+            token->type = TOKEN_IDENTIFIER;
         }
-
-        return op;
-    } else {
-        free(op);
-
-        if (lockAcquired) {
-            buf_rollback_and_unlock(buffer, 1); // Rollback and unlock if we locked it here
-        }
-
-        return NULL; // No operator found
-    }
-}
-
-long lexer_getnumber(buffer_t *buffer) {
-    // Call lexer_getalphanum to get the alphanumeric sequence
-    char *alphanumStr = lexer_getalphanum(buffer);
-
-    // Check if the sequence is NULL
-    if (alphanumStr == NULL) {
-        return -1; // Indicates no alphanum sequence was found
+        token->value = value;
+        return token;
     }
 
-    // Check if the alphanumStr consists only of digits
-    for (int i = 0; alphanumStr[i] != '\0'; i++) {
-        if (!isdigit(alphanumStr[i])) {
-            free(alphanumStr); // Free the allocated memory
-            return -1; // Indicates that the sequence is not a valid number
-        }
+    // Recognize operators and delimiters
+    token_t *token = malloc(sizeof(token_t));
+    switch (ch) {
+        case '+': token->type = TOKEN_PLUS; break;
+        case '-': token->type = TOKEN_MINUS; break;
+        case '*': token->type = TOKEN_STAR; break;
+        case '/': token->type = TOKEN_SLASH; break;
+        case '=': token->type = TOKEN_ASSIGN; break;
+        case ';': token->type = TOKEN_SEMICOLON; break;
+        case '\0': token->type = TOKEN_END; break;
+        default:
+            free(value);
+        free(token);
+        return NULL; // Unrecognized character
     }
-
-    // Convert string to long
-    long number = strtol(alphanumStr, NULL, 10);
-    free(alphanumStr); // Free the allocated memory
-    return number;
+    token->value = NULL;
+    return token;
 }

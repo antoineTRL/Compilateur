@@ -11,7 +11,7 @@
 #define COLOR_BG_BLUE "\e[44m"
 #define COLOR_BG_GREEN "\e[42m"
 #define COLOR_DEFAULT "\e[39m\e[49m"
-
+#define ISBLANK(c) ((c) == ' ' || (c) == '\t')
 #define STREQUAL 0
 
 char *copy_name (char *name);

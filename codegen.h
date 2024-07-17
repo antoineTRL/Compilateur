@@ -2,6 +2,7 @@
 #define CODEGEN_H
 
 #include "ast.h"
+#include <stddef.h>
 
 typedef struct {
     char *code;
@@ -11,6 +12,6 @@ typedef struct {
 
 void codegen_init(codegen_context_t *context);
 void codegen_free(codegen_context_t *context);
-void generate_code(ast_t *node, codegen_context_t *context);
+void generate_code(ast_t *node);
 
 #endif // CODEGEN_H
