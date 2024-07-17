@@ -7,7 +7,7 @@
 Le projet contient :
 - Un buffer
 - Un lexer
-- Un parser
+- Un parser (ne marche pas parfaitement)
 - Un arbre syntaxique abstrait
 - Un générateur de code
 - Une analyse sémantique
